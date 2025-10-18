@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧠 Human Counselor - AI Emotion Journal</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 40px;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        .dark-mode {
+            background-color: #121212;
+            color: #f0f2f5;
+        }
+        
+        h1 {
+            color: #2d6a4f;
+        }
+        
+        textarea {
+            width: 70%;
+            height: 150px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            resize: none;
+            margin-top: 20px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        /* New Slider Container Style */
+        
+        .slider-container {
+            width: 70%;
+            margin: 15px auto 20px;
+            text-align: left;
+            padding: 10px 0;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .slider-container {
+            background-color: #1e1e1e;
+        }
+        
+        input[type="range"] {
+            width: 98%;
+            margin-top: 5px;
+        }
+        /* End Slider Container Style */
+        
+        button {
+            margin: 10px;
+            padding: 12px 25px;
+            background-color: #4caf50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #388e3c;
+        }
+        
+        .result-box {
+            margin-top: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 70%;
+            display: inline-block;
+            padding: 20px;
+            text-align: left;
+            border-left: 5px solid #2d6a4f;
+            /* Default border */
+            transition: border-left-color 0.4s ease, background 0.4s ease;
+        }
+        
+        .dark-mode .result-box {
+            background: #1e1e1e;
+            color: #f0f2f5;
+        }
+        
+        .result-box h3 {
+            color: #2d6a4f;
+            margin-top: 0;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            color: gray;
+            font-size: 14px;
+        }
+        
+        .voice-btn {
+            background-color: #2d6a4f;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+        }
+        
+        #history {
+            margin-top: 40px;
+            width: 70%;
+            text-align: left;
+            display: inline-block;
+        }
+        
+        #history h3 {
+            color: #2d6a4f;
+        }
+        
+        .mood-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            /* New: Style for action item */
+            border-left: 3px solid transparent;
+        }
+        
+        .mood-item.action-set {
+            border-left-color: #4caf50;
+            /* Green highlight for action item */
+        }
+        
+        .dark-mode .mood-item {
+            background: #1e1e1e;
+        }
+        
+        #affirmation {
+            background: #e8f5e9;
+            border-radius: 10px;
+            display: inline-block;
+            padding: 15px;
+            margin-top: 25px;
+            font-style: italic;
+            color: #2d6a4f;
+        }
+        
+        .dark-mode #affirmation {
+            background: #2d6a4f50;
+        }
+        
+        #count {
+            margin-top: 5px;
+            font-size: 12px;
+            color: gray;
+            display: block;
+        }
+        
+        #breathe {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 100;
+        }
+        
+        #breathe h2 {
+            margin: 0 0 10px 0;
+        }
+        
+        #breathe p {
+            font-size: 20px;
+        }
+        
+        .dark-mode #breathe {
+            background: #222;
+            color: #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <button onclick="toggleTheme()">🌗 Theme</button>
+
+    <h1>🧠 Human Counselor - AI Emotion Journal</h1>
+    <p>Your safe, private space to reflect, express, and grow 🌿</p>
+
+    <textarea id="userInput" placeholder="How are you feeling today?" oninput="updateCount()"></textarea>
+    <span id="count">0 words / 0 characters</span>
+
+    <div class="slider-container">
+        <label for="intensity">Emotional Intensity: </label>
+        <span id="intensityValue">5 / 10 (Moderate)</span>
+        <input type="range" id="intensity" min="1" max="10" value="5" oninput="updateIntensityText()">
+    </div>
+    <br>
+
+    <button onclick="analyzeEmotion()">Analyze Emotion</button>
+    <button class="voice-btn" onclick="startVoiceInput()">🎤 Speak</button>
+    <button onclick="showBreathing()">🫁 Relax</button>
+    <button onclick="toggleAnonymous()">🙈 Anonymous Mode</button>
+
+
+    <div id="result" class="result-box" style="display:none;">
+        <h3>Emotion Analysis Result:</h3>
+        <p><b>Intensity:</b> <span id="intensityOutput"></span></p>
+        <p><b>Sentiment:</b> <span id="sentiment"></span></p>
+        <p><b>Detected Emotion:</b> <span id="emotion"></span></p>
+        <p><b>Coping Suggestion:</b> <span id="advice"></span></p>
+        <p style="display:none;" id="actionItemP"><b>Next Action:</b> <span id="actionItem"></span></p>
+    </div>
+
+    <div id="affirmation"></div>
+
+    <div id="history">
+        <h3>🪶 Your Journal History</h3>
+        <button class="delete-btn" onclick="clearHistory()">🗑️ Clear History</button>
+        <div id="moodHistory"></div>
+    </div>
+
+    <div id="breathe">
+        <h2>🫁 Breathe with Me</h2>
+        <p id="breatheText">Inhale...</p>
+        <button onclick="closeBreathing()">Close</button>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 Human Counselor | For your emotional well-being ❤️</p>
+    </div>
+
+    <script>
+        let anonymousMode = false;
+        let dark = false;
+
+        const emotionColors = {
+            "Joy": "#ffc107", // Yellow/Gold for Joy
+            "Anger": "#f44336", // Red for Anger
+            "Sadness": "#2196f3", // Blue for Sadness
+            "Fear": "#673ab7", // Purple for Fear
+            "Neutral": "#4caf50", // Green for Neutral/Calm
+            "Default": "#2d6a4f"
+        };
+
+        // --- NEW FEATURE: Emotion-specific Affirmations ---
+        const affirmationsMap = {
+            "Joy": ["Your positivity is contagious! Share your light ✨", "Today, celebrate this feeling of happiness 🎈", "You deserve all the good things coming your way 🌈"],
+            "Anger": ["It's okay to feel upset. Your boundaries are important 🛡️", "You have the power to choose your response, not your reaction 💪", "Take a step back. Clarity comes with calm."],
+            "Sadness": ["Healing takes time, be patient with yourself 🤍", "Every emotion is valid. Feel it, don't fear it 💚", "It’s okay to not be okay. You are not alone."],
+            "Fear": ["You are safe. What you seek is seeking you. 🌟", "You are stronger than your anxiety. Try a grounding exercise 🌬️", "Take a deep breath. You are capable of handling this."],
+            "Neutral": ["What is one small thing you can do for yourself right now? ☕", "Keep showing up for yourself 🌻", "One step at a time. Progress, not perfection."],
+        };
+        // ---------------------------------------------------
+
+
+        // --- NEW FEATURE: Intensity Slider Helper ---
+        function getIntensityText(value) {
+            if (value <= 3) return "Mild";
+            if (value <= 7) return "Moderate";
+            return "High/Intense";
+        }
+
+        function updateIntensityText() {
+            const value = document.getElementById("intensity").value;
+            document.getElementById("intensityValue").innerText = `${value} / 10 (${getIntensityText(value)})`;
+        }
+        // --------------------------------------------
+
+        function analyzeEmotion() {
+            const text = document.getElementById("userInput").value.trim();
+            if (text === "") return alert("Please share your thoughts.");
+
+            const intensityValue = document.getElementById("intensity").value;
+            const intensityText = getIntensityText(intensityValue);
+
+            const sentimentEl = document.getElementById("sentiment");
+            const emotionEl = document.getElementById("emotion");
+            const adviceEl = document.getElementById("advice");
+            const resultDiv = document.getElementById("result");
+            const historyDiv = document.getElementById("moodHistory");
+            const intensityOutputEl = document.getElementById("intensityOutput");
+            const actionItemP = document.getElementById("actionItemP");
+            const actionItemEl = document.getElementById("actionItem");
+
+            // Emotion Detection Logic (Same as before)
+            let sentiment = "Neutral";
+            if (text.match(/happy|joy|love|good|great|amazing|excited/i)) sentiment = "Positive";
+            else if (text.match(/sad|angry|tired|depressed|anxious|frustrated|stressed|bad/i)) sentiment = "Negative";
+
+            let emotion = "Neutral";
+            if (text.match(/happy|excited|joy|amazing/i)) emotion = "Joy";
+            else if (text.match(/angry|frustrated|mad|rage/i)) emotion = "Anger";
+            else if (text.match(/sad|lonely|cry|depressed/i)) emotion = "Sadness";
+            else if (text.match(/fear|nervous|scared|anxious/i)) emotion = "Fear";
+
+            let advice = "Try journaling or mindfulness.";
+            if (emotion === "Joy") advice = "Keep this positive energy flowing 🌞";
+            else if (emotion === "Anger") advice = "Pause and take a few deep breaths 💪";
+            else if (emotion === "Sadness") advice = "Reach out to a friend or listen to calming music 💙";
+            else if (emotion === "Fear") advice = "You are safe. Try a grounding exercise 🌬️";
+
+            // --- NEW FEATURE: Basic Goal/Action Item Tracker ---
+            let actionText = "";
+            let actionPrompt = "";
+            if (sentiment === "Negative" && intensityValue >= 6) {
+                // Prompt user for an action item if the emotion is negative and intense
+                actionPrompt = prompt(`Your emotion is ${emotion} at ${intensityValue}/10. What is one small, manageable action you can take right now to address this? (e.g., 'Take a walk', 'Call a friend')`);
+                actionText = actionPrompt ? actionPrompt : "No action set.";
+                actionItemP.style.display = "block";
+            } else {
+                actionItemP.style.display = "none";
+                actionText = "";
+            }
+            actionItemEl.innerText = actionText;
+            // ----------------------------------------------------
+
+            sentimentEl.innerText = sentiment;
+            emotionEl.innerText = emotion;
+            adviceEl.innerText = advice;
+            intensityOutputEl.innerText = `${intensityValue}/10 (${intensityText})`;
+            resultDiv.style.display = "block";
+
+            resultDiv.style.borderLeftColor = emotionColors[emotion] || emotionColors["Default"];
+
+            const entry = anonymousMode ? "Anonymous Entry" : text;
+            const date = new Date().toLocaleString();
+            const mood = document.createElement("div");
+            mood.className = "mood-item";
+            if (actionText && actionText !== "No action set.") {
+                mood.classList.add("action-set");
+            }
+            mood.innerHTML = `<b>${date}</b><br>${entry}<br>Intensity: ${intensityValue}/10 | <i>${emotion}</i> (${sentiment})${actionText ? `<br>Action: <b>${actionText}</b>` : ''}`;
+            historyDiv.prepend(mood);
+
+            document.getElementById("userInput").value = "";
+            document.getElementById("intensity").value = 5; // Reset intensity
+            updateIntensityText(); 
+            updateCount(); 
+            saveHistory();
+            generateAffirmation(emotion); // Pass emotion for dynamic affirmation
+        }
+
+        // --- UPDATED FEATURE: Dynamic Affirmation ---
+        function generateAffirmation(emotion) {
+            emotion = emotion || "Neutral"; // Default to Neutral if no emotion passed (on load)
+            const list = affirmationsMap[emotion] || affirmationsMap["Neutral"];
+            const random = list[Math.floor(Math.random() * list.length)];
+            document.getElementById("affirmation").innerText = random;
+        }
+        // --------------------------------------------
+
+        function startVoiceInput() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Sorry, voice recognition not supported by your browser.");
+                return;
+            }
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.onresult = function(event) {
+                document.getElementById("userInput").value = event.results[0][0].transcript;
+                updateCount();
+            };
+            recognition.start();
+        }
+
+        function toggleTheme() {
+            dark = !dark;
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function toggleAnonymous() {
+            anonymousMode = !anonymousMode;
+            alert(anonymousMode ? "Anonymous mode ON 🙈. Entries will be hidden in history." : "Anonymous mode OFF 👤. Entries will be visible in history.");
+        }
+
+        function updateCount() {
+            const text = document.getElementById("userInput").value;
+            const charCount = text.length;
+            const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById("count").innerText = `${wordCount} words / ${charCount} characters`;
+        }
+
+        function saveHistory() {
+            localStorage.setItem("moodHistory", document.getElementById("moodHistory").innerHTML);
+        }
+
+        function loadHistory() {
+            const data = localStorage.getItem("moodHistory");
+            if (data) document.getElementById("moodHistory").innerHTML = data;
+        }
+        
+        function clearHistory() {
+            if(confirm("Are you sure you want to delete your entire journal history? This cannot be undone.")) {
+                localStorage.removeItem("moodHistory");
+                document.getElementById("moodHistory").innerHTML = "";
+                alert("Journal history cleared.");
+            }
+        }
+
+        function showBreathing() {
+            const popup = document.getElementById("breathe");
+            popup.style.display = "block";
+            const text = document.getElementById("breatheText");
+            let steps = ["Inhale deeply... 🌬️", "Hold... ✋", "Exhale slowly... 😌"];
+            let i = 0;
+            const interval = setInterval(() => {
+                text.innerText = steps[i];
+                i = (i + 1) % steps.length;
+            }, 3000);
+            popup.dataset.interval = interval;
+        }
+
+        function closeBreathing() {
+            const popup = document.getElementById("breathe");
+            popup.style.display = "none";
+            clearInterval(popup.dataset.interval);
+        }
+
+        loadHistory();
+        generateAffirmation();
+        updateCount();
+        updateIntensityText(); // Initialize intensity text on load
+    </script>
+</body>
+
+</html>
